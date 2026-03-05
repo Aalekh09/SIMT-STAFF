@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAHA Institute - Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="checkAuth(); loadBestPerformer(); loadStaff(); loadDashboardStats();">
+
+  <div class="header">
+    <div class="header-title">
+      <div class="header-logo">SIMT</div>
+      <div>
+        <div class="header-institute">SAHA INSTITUTE</div>
+        <div class="header-subtitle">Staff Performance Management</div>
+      </div>
+    </div>
+    <div class="user-info">
+      <span id="adminName">Admin</span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Dashboard Statistics -->
+    <div id="dashboardStats"></div>
+
+    <!-- Best Performer of the Month -->
+    <div id="bestPerformerCard"></div>
+
+    <!-- Add Staff -->
+    <div class="card">
+      <h2>➕ Add New Staff</h2>
+      <div class="form-grid">
+        <input type="text" id="name" placeholder="Staff Name">
+        <input type="email" id="staffEmail" placeholder="Staff Email">
+        <input type="text" id="department" placeholder="Department (Optional)">
+      </div>
+      <button onclick="addStaff()">Add Staff</button>
+    </div>
+
+    <!-- Staff Performance Entry -->
+    <div class="card">
+      <h2>📊 Staff Performance Entry</h2>
+      <div class="card-actions">
+        <button onclick="loadStaff()">🔄 Refresh Data</button>
+        <button onclick="exportToCSV()" class="btn-secondary">📥 Export to CSV</button>
+        <button onclick="saveAllHistory()" class="btn-secondary">💾 Save Monthly Snapshot</button>
+      </div>
+      <div style="overflow-x: auto;">
+        <table id="staffTable"></table>
+      </div>
+    </div>
+
+    <!-- Performance History -->
+    <div class="card">
+      <h2>📈 Performance History</h2>
+      <p class="info-text">View historical performance data and trends for any staff member</p>
+      <select id="historyStaffSelect" onchange="loadStaffHistory()">
+        <option value="">Select a staff member...</option>
+      </select>
+      <div id="historyChart"></div>
+      <div id="historyTable"></div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>© 2026 SAHA Institute of Management & Technology. All rights reserved.</p>
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+
+</html>

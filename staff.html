@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAHA Institute - My Performance</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="checkAuth(); loadMyPerformance();">
+
+  <div class="header">
+    <div class="header-title">
+      <div class="header-logo">SIMT</div>
+      <div>
+        <div class="header-institute">SAHA INSTITUTE</div>
+        <div class="header-subtitle">My Performance Dashboard</div>
+      </div>
+    </div>
+    <div class="user-info">
+      <span id="staffName">Staff</span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Performance Stats -->
+    <div class="card">
+      <h2>🎯 My Performance Metrics</h2>
+      <div id="performance"></div>
+      <div class="performance-message" id="performanceMessage"></div>
+    </div>
+
+    <!-- My Ranking -->
+    <div class="card">
+      <h2>📊 My Ranking</h2>
+      <div id="myRanking"></div>
+    </div>
+
+    <!-- Performance Goals -->
+    <div class="card">
+      <h2>🎓 Performance Goals</h2>
+      <div class="goals-info">
+        <p><strong>Target Score:</strong> 8.0 / 10</p>
+        <p><strong>Institute Standard:</strong> Maintain above 7.0 for excellent performance</p>
+        <div class="goal-tips">
+          <h3>Tips to Improve:</h3>
+          <ul>
+            <li>Maintain punctuality - arrive 10 minutes early</li>
+            <li>Complete tasks before deadlines</li>
+            <li>Actively participate in team activities</li>
+            <li>Follow institute guidelines and discipline</li>
+            <li>Engage in continuous learning</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Comments -->
+    <div class="card" id="commentsCard">
+      <h2>💬 Feedback from Admin</h2>
+      <div id="adminComments"></div>
+    </div>
+
+    <!-- Performance History -->
+    <div class="card">
+      <h2>📈 My Performance History</h2>
+      <div id="myHistoryChart"></div>
+      <div id="myHistoryTable"></div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>© 2026 SAHA Institute of Management & Technology. All rights reserved.</p>
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+
+</html>

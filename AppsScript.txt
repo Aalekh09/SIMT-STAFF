@@ -1,0 +1,177 @@
+function doGet(e) {
+
+  const action = e && e.parameter ? e.parameter.action : null;
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Staff_Data");
+  let data = sheet.getDataRange().getValues();
+  data.shift();
+
+  // Calculate Score
+  data.forEach(row => {
+    row[9] =
+      (row[4]*0.20) +
+      (row[5]*0.15) +
+      (row[6]*0.20) +
+      (row[7]*0.20) +
+      (row[8]*0.25);
+  });
+
+  // Leaderboard (exclude admin users)
+  if(action == "leaderboard"){
+    // Filter out admin users
+    let staffOnly = data.filter(row => row[3] !== "admin");
+    staffOnly.sort((a,b)=> b[9]-a[9]);
+    return ContentService.createTextOutput(JSON.stringify(staffOnly))
+    .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Login
+  if(action == "login"){
+    const email = e.parameter.email;
+    const user = data.find(r=> r[2]==email);
+    return ContentService.createTextOutput(JSON.stringify(user))
+    .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Add Staff
+  if(action == "addStaff"){
+
+    const id = sheet.getLastRow();
+    const name = e.parameter.name;
+    const email = e.parameter.email;
+    const role = "staff";
+
+    sheet.appendRow([id,name,email,role,0,0,0,0,0,0,""]);
+
+    return ContentService.createTextOutput("Staff Added");
+  }
+
+  // Delete Staff
+  if(action == "deleteStaff"){
+
+    const email = e.parameter.email;
+    const rows = sheet.getDataRange().getValues();
+
+    for(let i=1;i<rows.length;i++){
+      if(rows[i][2]==email){
+        sheet.deleteRow(i+1);
+        break;
+      }
+    }
+
+    return ContentService.createTextOutput("Staff Deleted");
+  }
+
+  // Update Marks
+  if(action == "updateMarks"){
+
+    let email = e.parameter.email;
+    let p = parseFloat(e.parameter.p) || 0;
+    let d = parseFloat(e.parameter.d) || 0;
+    let en = parseFloat(e.parameter.e) || 0;
+    let t = parseFloat(e.parameter.t) || 0;
+    let tw = parseFloat(e.parameter.tw) || 0;
+
+    let rows = sheet.getDataRange().getValues();
+
+    for(let i=1;i<rows.length;i++){
+
+      if(rows[i][2] == email){
+
+        sheet.getRange(i+1,5).setValue(p);
+        sheet.getRange(i+1,6).setValue(d);
+        sheet.getRange(i+1,7).setValue(en);
+        sheet.getRange(i+1,8).setValue(t);
+        sheet.getRange(i+1,9).setValue(tw);
+
+        break;
+
+      }
+
+    }
+
+    return ContentService.createTextOutput("Updated");
+
+  }
+
+  // Save Comment
+  if(action == "saveComment"){
+    
+    let email = e.parameter.email;
+    let comment = e.parameter.comment;
+    let rows = sheet.getDataRange().getValues();
+
+    for(let i=1;i<rows.length;i++){
+      if(rows[i][2] == email){
+        sheet.getRange(i+1,11).setValue(comment);
+        break;
+      }
+    }
+
+    return ContentService.createTextOutput("Comment Saved");
+  }
+
+  // Get Comment
+  if(action == "getComment"){
+    
+    let email = e.parameter.email;
+    let rows = sheet.getDataRange().getValues();
+
+    for(let i=1;i<rows.length;i++){
+      if(rows[i][2] == email){
+        return ContentService.createTextOutput(rows[i][10] || "");
+      }
+    }
+
+    return ContentService.createTextOutput("");
+  }
+
+  // Save Performance History
+  if(action == "saveHistory"){
+    
+    let historySheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Performance_History");
+    
+    // Create sheet if it doesn't exist
+    if(!historySheet){
+      historySheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet("Performance_History");
+      historySheet.appendRow(["Date","Email","Name","Punctuality","Discipline","Engagement","Tasks","Teamwork","Total Score"]);
+    }
+
+    let email = e.parameter.email;
+    let name = e.parameter.name;
+    let p = parseFloat(e.parameter.p) || 0;
+    let d = parseFloat(e.parameter.d) || 0;
+    let en = parseFloat(e.parameter.e) || 0;
+    let t = parseFloat(e.parameter.t) || 0;
+    let tw = parseFloat(e.parameter.tw) || 0;
+    let score = (p*0.20) + (d*0.15) + (en*0.20) + (t*0.20) + (tw*0.25);
+    let date = new Date().toISOString().split('T')[0];
+
+    historySheet.appendRow([date, email, name, p, d, en, t, tw, score]);
+
+    return ContentService.createTextOutput("History Saved");
+  }
+
+  // Get Performance History
+  if(action == "getHistory"){
+    
+    let historySheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Performance_History");
+    
+    if(!historySheet){
+      return ContentService.createTextOutput(JSON.stringify([]))
+      .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    let email = e.parameter.email;
+    let historyData = historySheet.getDataRange().getValues();
+    historyData.shift(); // Remove header
+
+    // Filter by email and get last 12 months
+    let userHistory = historyData.filter(row => row[1] == email);
+    userHistory = userHistory.slice(-12); // Last 12 entries
+
+    return ContentService.createTextOutput(JSON.stringify(userHistory))
+    .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  return ContentService.createTextOutput("Invalid Request");
+}
