@@ -1,4 +1,4 @@
-const API = "https://script.google.com/macros/s/AKfycbyX0WLiA3muQ-p_8TL6xlC1zWyF6oqysdE5s4D0sZRxRyYag23oQlcpjlrosfWGgZILmg/exec";
+const API = "https://script.google.com/macros/s/AKfycbxVfXBIfyAywF-QrZGwMm2-Aqgoln5sVKgReZDDf9GTrsl-5kYAaIoc7DzyUFLvcpyNAA/exec";
 
 
 /* ================= AUTHENTICATION ================= */
@@ -135,7 +135,7 @@ function loadBestPerformer() {
           <div class="best-performer">
             <h3>🏆 Best Performer of the Month</h3>
             <div class="name">${best[1]}</div>
-            <div class="score">Score: ${best[9].toFixed(2)} / 10</div>
+            <div class="score">Score: ${best[9].toFixed(2)}</div>
           </div>
         `;
       }
@@ -166,11 +166,11 @@ function loadStaff() {
           <th>Rank</th>
           <th>Name</th>
           <th>Email</th>
-          <th>Punctuality<br>(20%)</th>
-          <th>Discipline<br>(15%)</th>
-          <th>Engagement<br>(20%)</th>
-          <th>Tasks<br>(20%)</th>
-          <th>Teamwork<br>(25%)</th>
+          <th>Punctuality</th>
+          <th>Discipline</th>
+          <th>Engagement</th>
+          <th>Tasks</th>
+          <th>Teamwork</th>
           <th>Total Score</th>
           <th>Action</th>
           <th>Comments</th>
@@ -188,11 +188,11 @@ function loadStaff() {
             <td><strong>${index + 1}</strong></td>
             <td>${row[1]}</td>
             <td>${row[2]}</td>
-            <td><input id="p${row[0]}" value="${row[4]}" type="number" min="0" max="10" step="0.5"></td>
-            <td><input id="d${row[0]}" value="${row[5]}" type="number" min="0" max="10" step="0.5"></td>
-            <td><input id="e${row[0]}" value="${row[6]}" type="number" min="0" max="10" step="0.5"></td>
-            <td><input id="t${row[0]}" value="${row[7]}" type="number" min="0" max="10" step="0.5"></td>
-            <td><input id="tw${row[0]}" value="${row[8]}" type="number" min="0" max="10" step="0.5"></td>
+            <td><input id="p${row[0]}" value="${row[4]}" type="number" step="0.5"></td>
+            <td><input id="d${row[0]}" value="${row[5]}" type="number" step="0.5"></td>
+            <td><input id="e${row[0]}" value="${row[6]}" type="number" step="0.5"></td>
+            <td><input id="t${row[0]}" value="${row[7]}" type="number" step="0.5"></td>
+            <td><input id="tw${row[0]}" value="${row[8]}" type="number" step="0.5"></td>
             <td><strong>${row[9].toFixed(2)}</strong></td>
             <td>
               <button onclick="saveMarks('${row[2]}', ${row[0]}, '${row[1]}')">💾 Save</button>
@@ -222,9 +222,9 @@ function saveMarks(email, id, name) {
   const t = document.getElementById("t" + id).value;
   const tw = document.getElementById("tw" + id).value;
 
-  // Validation
-  if (p < 0 || p > 10 || d < 0 || d > 10 || e < 0 || e > 10 || t < 0 || t > 10 || tw < 0 || tw > 10) {
-    alert("All scores must be between 0 and 10");
+  // Validation - removed range limits, only check for valid numbers
+  if (isNaN(p) || isNaN(d) || isNaN(e) || isNaN(t) || isNaN(tw)) {
+    alert("All scores must be valid numbers");
     return;
   }
 
@@ -247,66 +247,6 @@ function saveMarks(email, id, name) {
 }
 
 
-/* ================= STAFF PERFORMANCE VIEW ================= */
-
-function loadMyPerformance() {
-  const user = JSON.parse(localStorage.getItem("user"));
-  
-  if (!user) return;
-
-  const email = user[2];
-
-  fetch(`${API}?action=login&email=${encodeURIComponent(email)}`)
-    .then(res => res.json())
-    .then(data => {
-      if (!data) {
-        alert("Error loading your performance data");
-        return;
-      }
-
-      const punctuality = parseFloat(data[4]) || 0;
-      const discipline = parseFloat(data[5]) || 0;
-      const engagement = parseFloat(data[6]) || 0;
-      const tasks = parseFloat(data[7]) || 0;
-      const teamwork = parseFloat(data[8]) || 0;
-      const totalScore = parseFloat(data[9]) || 0;
-
-      const performanceHTML = `
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-label">Punctuality (20%)</div>
-            <div class="stat-value">${punctuality.toFixed(1)} / 10</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-label">Discipline (15%)</div>
-            <div class="stat-value">${discipline.toFixed(1)} / 10</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-label">Engagement (20%)</div>
-            <div class="stat-value">${engagement.toFixed(1)} / 10</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-label">Tasks (20%)</div>
-            <div class="stat-value">${tasks.toFixed(1)} / 10</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-label">Teamwork (25%)</div>
-            <div class="stat-value">${teamwork.toFixed(1)} / 10</div>
-          </div>
-          <div class="stat-item" style="border-left-color: #10b981;">
-            <div class="stat-label">Total Score</div>
-            <div class="stat-value" style="color: #10b981;">${totalScore.toFixed(2)} / 10</div>
-          </div>
-        </div>
-      `;
-
-      document.getElementById("performance").innerHTML = performanceHTML;
-    })
-    .catch(err => {
-      alert("Error loading performance data");
-      console.error(err);
-    });
-}
 
 
 /* ================= DASHBOARD STATISTICS ================= */
@@ -317,8 +257,8 @@ function loadDashboardStats() {
     .then(data => {
       const totalStaff = data.length;
       const avgScore = data.reduce((sum, row) => sum + row[9], 0) / totalStaff;
-      const excellentPerformers = data.filter(row => row[9] >= 8).length;
-      const needsImprovement = data.filter(row => row[9] < 6).length;
+      const excellentPerformers = data.filter(row => row[9] >= 40).length;
+      const needsImprovement = data.filter(row => row[9] < 25).length;
 
       const statsHTML = `
         <div class="dashboard-stats">
@@ -335,12 +275,12 @@ function loadDashboardStats() {
           <div class="stat-card orange">
             <div class="stat-card-icon">🏆</div>
             <div class="stat-card-value">${excellentPerformers}</div>
-            <div class="stat-card-label">Excellent (≥8.0)</div>
+            <div class="stat-card-label">Excellent (≥40.0)</div>
           </div>
           <div class="stat-card purple">
             <div class="stat-card-icon">📊</div>
             <div class="stat-card-value">${needsImprovement}</div>
-            <div class="stat-card-label">Needs Focus (<6.0)</div>
+            <div class="stat-card-label">Needs Focus (<25.0)</div>
           </div>
         </div>
       `;
@@ -419,28 +359,28 @@ function loadMyPerformance() {
       const performanceHTML = `
         <div class="stats-grid">
           <div class="stat-item">
-            <div class="stat-label">Punctuality (20%)</div>
-            <div class="stat-value">${punctuality.toFixed(1)} / 10</div>
+            <div class="stat-label">Punctuality</div>
+            <div class="stat-value">${punctuality.toFixed(1)}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label">Discipline (15%)</div>
-            <div class="stat-value">${discipline.toFixed(1)} / 10</div>
+            <div class="stat-label">Discipline</div>
+            <div class="stat-value">${discipline.toFixed(1)}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label">Engagement (20%)</div>
-            <div class="stat-value">${engagement.toFixed(1)} / 10</div>
+            <div class="stat-label">Engagement</div>
+            <div class="stat-value">${engagement.toFixed(1)}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label">Tasks (20%)</div>
-            <div class="stat-value">${tasks.toFixed(1)} / 10</div>
+            <div class="stat-label">Tasks</div>
+            <div class="stat-value">${tasks.toFixed(1)}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label">Teamwork (25%)</div>
-            <div class="stat-value">${teamwork.toFixed(1)} / 10</div>
+            <div class="stat-label">Teamwork</div>
+            <div class="stat-value">${teamwork.toFixed(1)}</div>
           </div>
           <div class="stat-item" style="border-left-color: #10b981;">
             <div class="stat-label">Total Score</div>
-            <div class="stat-value" style="color: #10b981;">${totalScore.toFixed(2)} / 10</div>
+            <div class="stat-value" style="color: #10b981;">${totalScore.toFixed(2)}</div>
           </div>
         </div>
       `;
@@ -449,10 +389,10 @@ function loadMyPerformance() {
 
       // Add performance message
       const messageDiv = document.getElementById("performanceMessage");
-      if (totalScore >= 8) {
+      if (totalScore >= 40) {
         messageDiv.className = "performance-message excellent";
         messageDiv.innerHTML = "🌟 Excellent Performance! Keep up the great work!";
-      } else if (totalScore >= 6) {
+      } else if (totalScore >= 25) {
         messageDiv.className = "performance-message good";
         messageDiv.innerHTML = "👍 Good Performance! You're doing well. Keep improving!";
       } else {
@@ -515,7 +455,7 @@ function loadMyRanking(email, myScore) {
           <div class="rank-details">
             <div class="rank-position">Rank: ${myPosition} out of ${totalStaff}</div>
             <div class="rank-percentile">Top ${percentile}% of team</div>
-            <div class="rank-score">Score: ${myScore.toFixed(2)} / 10</div>
+            <div class="rank-score">Score: ${myScore.toFixed(2)}</div>
           </div>
         </div>
       `;
@@ -670,7 +610,7 @@ function loadStaffHistory() {
       data.forEach((row, index) => {
         const date = row[0];
         const score = parseFloat(row[8]).toFixed(2);
-        const barWidth = (score / 10) * 100;
+        const barWidth = Math.min((score / 50) * 100, 100);
         
         chartHTML += `
           <div class="history-bar-container">
@@ -744,11 +684,11 @@ function loadMyHistory(email) {
       data.forEach((row, index) => {
         const date = row[0];
         const score = parseFloat(row[8]).toFixed(2);
-        const barWidth = (score / 10) * 100;
+        const barWidth = Math.min((score / 50) * 100, 100);
         
         let barColor = "#2563eb";
-        if (score >= 8) barColor = "#10b981";
-        else if (score < 6) barColor = "#f59e0b";
+        if (score >= 40) barColor = "#10b981";
+        else if (score < 25) barColor = "#f59e0b";
         
         chartHTML += `
           <div class="history-bar-container">

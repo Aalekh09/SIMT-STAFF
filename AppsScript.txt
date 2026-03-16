@@ -7,12 +7,8 @@ function doGet(e) {
 
   // Calculate Score
   data.forEach(row => {
-    row[9] =
-      (row[4]*0.20) +
-      (row[5]*0.15) +
-      (row[6]*0.20) +
-      (row[7]*0.20) +
-      (row[8]*0.25);
+    row[9] = 
+      row[4] + row[5] + row[6] + row[7] + row[8];
   });
 
   // Leaderboard (exclude admin users)
@@ -143,7 +139,7 @@ function doGet(e) {
     let en = parseFloat(e.parameter.e) || 0;
     let t = parseFloat(e.parameter.t) || 0;
     let tw = parseFloat(e.parameter.tw) || 0;
-    let score = (p*0.20) + (d*0.15) + (en*0.20) + (t*0.20) + (tw*0.25);
+    let score = (p*1) + (d*1) + (en*1) + (t*1) + (tw*1);
     let date = new Date().toISOString().split('T')[0];
 
     historySheet.appendRow([date, email, name, p, d, en, t, tw, score]);
