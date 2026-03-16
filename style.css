@@ -5,9 +5,31 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Performance Optimizations */
 body {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Reduce paint on scroll */
+.container {
+  will-change: transform;
+  contain: layout style paint;
+}
+
+/* Optimize images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Optimize animations */
+*, *::before, *::after {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 /* Top Header */
@@ -297,28 +319,129 @@ tr:last-child td {
   border-left: 4px solid #ef4444;
 }
 
-/* Responsive */
+/* Enhanced Mobile Responsiveness */
 @media (max-width: 768px) {
+  body {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
   .container {
-    width: 98%;
+    width: 95%;
+    max-width: 100%;
+    padding: 10px;
   }
   
   .card {
-    padding: 20px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
   }
   
   .header {
     flex-direction: column;
     gap: 10px;
     text-align: center;
+    padding: 15px 20px;
+  }
+  
+  .header-title {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .user-info {
+    font-size: 12px;
+    gap: 10px;
   }
   
   table {
-    font-size: 12px;
+    font-size: 11px;
+    border-collapse: collapse;
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+    white-space: nowrap;
   }
   
   input[type="number"] {
-    width: 60px;
+    width: 50px;
+    font-size: 14px;
+    padding: 4px;
+  }
+  
+  button {
+    padding: 8px 12px;
+    font-size: 12px;
+    margin: 2px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .stat-item {
+    padding: 10px;
+  }
+}
+
+/* Super Mobile Optimization */
+@media (max-width: 480px) {
+  .container {
+    width: 100%;
+    padding: 5px;
+  }
+  
+  .card {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .header {
+    padding: 10px 15px;
+  }
+  
+  .header-logo {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+  
+  .header-institute {
+    font-size: 14px;
+  }
+  
+  .header-subtitle {
+    font-size: 12px;
+  }
+  
+  table {
+    font-size: 10px;
+  }
+  
+  input[type="number"] {
+    width: 45px;
+    font-size: 12px;
+  }
+  
+  button {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .stat-item {
+    padding: 8px;
+  }
+  
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 }
 

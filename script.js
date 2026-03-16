@@ -1,5 +1,39 @@
 const API = "https://script.google.com/macros/s/AKfycbxVfXBIfyAywF-QrZGwMm2-Aqgoln5sVKgReZDDf9GTrsl-5kYAaIoc7DzyUFLvcpyNAA/exec";
 
+// Performance optimization: Cache for API responses
+const cache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Debounce function for rapid API calls
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Optimized fetch with caching
+function cachedFetch(url, cacheKey) {
+  const cached = cache.get(cacheKey);
+  const now = Date.now();
+  
+  if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+    return Promise.resolve(cached.data);
+  }
+  
+  return fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      cache.set(cacheKey, { data, timestamp: now });
+      return data;
+    });
+}
+
 
 /* ================= AUTHENTICATION ================= */
 
@@ -149,8 +183,7 @@ function loadBestPerformer() {
 /* ================= LOAD STAFF (ADMIN) ================= */
 
 function loadStaff() {
-  fetch(`${API}?action=leaderboard`)
-    .then(res => res.json())
+  cachedFetch(`${API}?action=leaderboard`, 'leaderboard')
     .then(data => {
       // Populate history dropdown
       const historySelect = document.getElementById("historyStaffSelect");
@@ -252,13 +285,12 @@ function saveMarks(email, id, name) {
 /* ================= DASHBOARD STATISTICS ================= */
 
 function loadDashboardStats() {
-  fetch(`${API}?action=leaderboard`)
-    .then(res => res.json())
+  cachedFetch(`${API}?action=leaderboard`, 'dashboard')
     .then(data => {
       const totalStaff = data.length;
       const avgScore = data.reduce((sum, row) => sum + row[9], 0) / totalStaff;
-      const excellentPerformers = data.filter(row => row[9] >= 40).length;
-      const needsImprovement = data.filter(row => row[9] < 25).length;
+      const excellentPerformers = data.filter(row => row[9] >= 50).length;
+      const needsImprovement = data.filter(row => row[9] < 35).length;
 
       const statsHTML = `
         <div class="dashboard-stats">
@@ -275,12 +307,12 @@ function loadDashboardStats() {
           <div class="stat-card orange">
             <div class="stat-card-icon">🏆</div>
             <div class="stat-card-value">${excellentPerformers}</div>
-            <div class="stat-card-label">Excellent (≥40.0)</div>
+            <div class="stat-card-label">Excellent (≥50.0)</div>
           </div>
           <div class="stat-card purple">
             <div class="stat-card-icon">📊</div>
             <div class="stat-card-value">${needsImprovement}</div>
-            <div class="stat-card-label">Needs Focus (<25.0)</div>
+            <div class="stat-card-label">Needs Focus (<35.0)</div>
           </div>
         </div>
       `;
@@ -296,8 +328,7 @@ function loadDashboardStats() {
 /* ================= EXPORT TO CSV ================= */
 
 function exportToCSV() {
-  fetch(`${API}?action=leaderboard`)
-    .then(res => res.json())
+  cachedFetch(`${API}?action=leaderboard`, 'export')
     .then(data => {
       let csv = "Rank,Name,Email,Punctuality,Discipline,Engagement,Tasks,Teamwork,Total Score\n";
 
@@ -341,8 +372,7 @@ function loadMyPerformance() {
 
   const email = user[2];
 
-  fetch(`${API}?action=login&email=${encodeURIComponent(email)}`)
-    .then(res => res.json())
+  cachedFetch(`${API}?action=login&email=${encodeURIComponent(email)}`, 'performance_' + email)
     .then(data => {
       if (!data) {
         alert("Error loading your performance data");
@@ -389,10 +419,10 @@ function loadMyPerformance() {
 
       // Add performance message
       const messageDiv = document.getElementById("performanceMessage");
-      if (totalScore >= 40) {
+      if (totalScore >= 50) {
         messageDiv.className = "performance-message excellent";
         messageDiv.innerHTML = "🌟 Excellent Performance! Keep up the great work!";
-      } else if (totalScore >= 25) {
+      } else if (totalScore >= 35) {
         messageDiv.className = "performance-message good";
         messageDiv.innerHTML = "👍 Good Performance! You're doing well. Keep improving!";
       } else {
@@ -419,8 +449,7 @@ function loadMyPerformance() {
 /* ================= MY RANKING ================= */
 
 function loadMyRanking(email, myScore) {
-  fetch(`${API}?action=leaderboard`)
-    .then(res => res.json())
+  cachedFetch(`${API}?action=leaderboard`, 'leaderboard')
     .then(data => {
       // Find my position
       let myPosition = 0;
@@ -687,8 +716,8 @@ function loadMyHistory(email) {
         const barWidth = Math.min((score / 50) * 100, 100);
         
         let barColor = "#2563eb";
-        if (score >= 40) barColor = "#10b981";
-        else if (score < 25) barColor = "#f59e0b";
+        if (score >= 50) barColor = "#10b981";
+        else if (score < 35) barColor = "#f59e0b";
         
         chartHTML += `
           <div class="history-bar-container">
